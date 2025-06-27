@@ -1,10 +1,15 @@
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-yk6)3agid(vp-8vsco%+n5i63tos+94onit=$0+gqe$rah$v6y'
+SECRET_KEY = os.getenv('SECRET_KEY', "not_secret")
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', "False").lower() == 'true'
 
 ALLOWED_HOSTS = []
 
@@ -78,5 +83,15 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'collected_static'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
