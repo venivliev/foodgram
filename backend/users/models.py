@@ -37,3 +37,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"Пользователь: {self.username}"
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='users_subscriptions',
+        verbose_name='кто',
+    )
+    subscribed_to = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='users_subscribers',
+        verbose_name='на кого',
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'подписки'
+
+    def __str__(self):
+        return f'{self.user.username} подписан на {self.subscribed_to.username}'
