@@ -29,11 +29,6 @@ class Recipe(models.Model):
         ],
         verbose_name='время готовки',
     )
-    tags = models.ManyToManyField(
-        'tags.Tag',
-        related_name='recipes',
-        verbose_name='теги'
-    )
     ingredients = models.ManyToManyField(
         'ingredients.Ingredient',
         through='RecipeIngredient',

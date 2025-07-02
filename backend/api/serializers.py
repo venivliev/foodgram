@@ -4,7 +4,6 @@ from drf_extra_fields.fields import Base64ImageField
 
 from users.models import Subscription, User
 from ingredients.models import Ingredient
-from tags.models import Tag
 
 class AvatarSerializer(serializers.Serializer):
     avatar = Base64ImageField(required=True)
@@ -104,13 +103,4 @@ class IngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
-        )
-
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = (
-            'id',
-            'name',
-            'slug',
         )

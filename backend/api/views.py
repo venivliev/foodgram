@@ -10,19 +10,17 @@ from rest_framework.decorators import action
 from django.core.files.storage import default_storage
 from rest_framework.permissions import IsAuthenticated
 from users.models import Subscription, User
-from tags.models import Tag
 from api.serializers import (
     UserCreateSerializer,
     CustomUserSerializer,
     ReadUserSerializer,
     AvatarSerializer,
     IngredientSerializer,
-    TagSerializer
 )
 from ingredients.models import Ingredient
 from foodgram_config.paginations import UserPagination
 from foodgram_config.filters import IngredientFilter
-from foodgram_config.paginations import IsAuthorOrReadOnly
+from foodgram_config.permissions import IsAuthorOrReadOnly
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -129,8 +127,3 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = IngredientFilter
     filter_backends = [DjangoFilterBackend]
 
-
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Tag.objects.all()
-    pagination_class = None
-    serializer_class = TagSerializer

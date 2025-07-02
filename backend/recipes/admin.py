@@ -14,10 +14,9 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'cooking_time', 'display_image', 'pub_date')
-    list_filter = ('tags', 'author', 'pub_date')
+    list_filter = ('author', 'pub_date')
     search_fields = ('name', 'author__username', 'author__email', 'text')
     readonly_fields = ('pub_date',)
-    filter_horizontal = ('tags',)
     inlines = (RecipeIngredientInline,)
 
     fieldsets = (
@@ -28,7 +27,7 @@ class RecipeAdmin(admin.ModelAdmin):
             'fields': ('image',)
         }),
         ('Дополнительно', {
-            'fields': ('tags', 'pub_date')
+            'fields': ('pub_date',)
         }),
     )
 
