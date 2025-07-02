@@ -15,6 +15,7 @@ router.register("ingredients", IngredientViewSet, basename="ingredients")
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path("api/auth/", include('djoser.urls.authtoken')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
