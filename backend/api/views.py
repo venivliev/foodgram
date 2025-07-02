@@ -17,6 +17,7 @@ from api.serializers import (
     AvatarSerializer,
     IngredientSerializer,
 )
+from rest_framework.views import APIView
 from ingredients.models import Ingredient
 from foodgram_config.paginations import UserPagination
 from foodgram_config.filters import IngredientFilter
@@ -126,4 +127,12 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     filterset_class = IngredientFilter
     filter_backends = [DjangoFilterBackend]
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return response.Response(status=status.HTTP_204_NO_CONTENT)
 
