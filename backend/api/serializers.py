@@ -3,6 +3,8 @@ from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
 from users.models import Subscription, User
+from ingredients.models import Ingredient
+from tags.models import Tag
 
 class AvatarSerializer(serializers.Serializer):
     avatar = Base64ImageField(required=True)
@@ -93,3 +95,22 @@ class ReadUserSerializer(serializers.ModelSerializer):
                 subscribed_to=obj
             ).exists()
         return False
+
+class IngredientSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = (
+            'id',
+            'name',
+            'slug',
+        )

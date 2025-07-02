@@ -9,12 +9,16 @@ from rest_framework.decorators import action
 from django.core.files.storage import default_storage
 from rest_framework.permissions import IsAuthenticated
 from users.models import Subscription, User
+from tags.models import Tag
 from api.serializers import (
     UserCreateSerializer,
     CustomUserSerializer,
     ReadUserSerializer,
     AvatarSerializer,
+    IngredientSerializer,
+    TagSerializer
 )
+from ingredients.models import Ingredient
 from api.paginations import UserPagination
 
 
@@ -45,27 +49,13 @@ class UserViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        methods=['get'],
-        detail=False,
-        url_path='me',
-        permission_classes=[IsAuthenticated],
-    )
-    def me(self, request):
-        serializer = CustomUserSerializer(
-            request.user,
-            context={'request': request}
-        )
-        return response.Response(
-            serializer.data
-        )
-
-    @action(
         detail=False,
         permission_classes=[IsAuthenticated],
         url_path='set_password',
         methods=['post'],
     )
     def set_password(self, request):
+        """смена пароля"""
         serializer = self.get_serializer(
             data=request.data,
             context={'request': request}
@@ -112,3 +102,30 @@ class UserViewSet(viewsets.ModelViewSet):
             request.user.avatar = None
             request.user.save()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        methods=['get'],
+        detail=False,
+        url_path='me',
+        permission_classes=[IsAuthenticated],
+    )
+    def me(self, request):
+        serializer = CustomUserSerializer(
+            request.user,
+            context={'request': request}
+        )
+        return response.Response(
+            serializer.data
+        )
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    pagination_class = None
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    pagination_class = None
+    serializer_class = TagSerializer
