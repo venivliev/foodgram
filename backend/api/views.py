@@ -20,8 +20,9 @@ from api.serializers import (
     TagSerializer
 )
 from ingredients.models import Ingredient
-from api.paginations import UserPagination
-from api.filters import IngredientFilter
+from foodgram_config.paginations import UserPagination
+from foodgram_config.filters import IngredientFilter
+from foodgram_config.paginations import IsAuthorOrReadOnly
 
 
 class UserViewSet(viewsets.ModelViewSet):
