@@ -5,6 +5,7 @@ from rest_framework import (
     status,
     viewsets,
 )
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from django.core.files.storage import default_storage
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +21,7 @@ from api.serializers import (
 )
 from ingredients.models import Ingredient
 from api.paginations import UserPagination
+from api.filters import IngredientFilter
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -123,6 +125,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    filterset_class = IngredientFilter
+    filter_backends = [DjangoFilterBackend]
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
