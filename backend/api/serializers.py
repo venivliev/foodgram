@@ -130,3 +130,26 @@ class AuthTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg, code='authorization')
         attrs['user'] = user
         return attrs
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True)
+    current_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if not user.check_password(data['current_password']):
+            raise serializers.ValidationError(
+                {'current_password': 'Старый пароль неверен.'}
+            )
+        if data['current_password'] == data['new_password']:
+            raise serializers.ValidationError(
+                {'new_password': 'Новый пароль должен отличаться от старого.'}
+            )
+        return data
+
+    def save(self):
+        user = self.context['request'].user
+        new_password = self.validated_data['new_password']
+        user.set_password(new_password)
+        user.save()

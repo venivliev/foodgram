@@ -17,7 +17,8 @@ from api.serializers import (
     ReadUserSerializer,
     AvatarSerializer,
     IngredientSerializer,
-    AuthTokenSerializer
+    AuthTokenSerializer,
+    ChangePasswordSerializer
 )
 from rest_framework.views import APIView
 from ingredients.models import Ingredient
@@ -36,6 +37,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return UserCreateSerializer
+        elif self.action == 'set_password':
+            return ChangePasswordSerializer
         elif self.action in ['avatar', 'retrieve']:
             return CustomUserSerializer
         return ReadUserSerializer
@@ -103,7 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     default_storage.delete(name)
             except Exception:
                 pass
-            request.user.avatar = None
+            request.user.avatar = ""
             request.user.save()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
