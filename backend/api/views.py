@@ -4,6 +4,7 @@ from rest_framework import (
     response,
     status,
     viewsets,
+authtoken
 )
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -16,6 +17,7 @@ from api.serializers import (
     ReadUserSerializer,
     AvatarSerializer,
     IngredientSerializer,
+    AuthTokenSerializer
 )
 from rest_framework.views import APIView
 from ingredients.models import Ingredient
@@ -136,3 +138,26 @@ class LogoutView(APIView):
         request.user.auth_token.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class ObtainAuthToken(APIView):
+    serializer_class = AuthTokenSerializer
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+        }
+
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        return self.serializer_class(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = authtoken.models.Token.objects.get_or_create(
+            user=user
+        )
+        return response.Response({'auth_token': token.key})

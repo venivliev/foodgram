@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.views import UserViewSet, IngredientViewSet, LogoutView
+from api.views import UserViewSet, IngredientViewSet, LogoutView, ObtainAuthToken
 
 
 router = DefaultRouter()
@@ -16,6 +16,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/auth/token/logout/', LogoutView.as_view(), name='logout'),
+    path('api/auth/token/login/', ObtainAuthToken.as_view(), name='login'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

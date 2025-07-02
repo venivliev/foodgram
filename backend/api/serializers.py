@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from drf_extra_fields.fields import Base64ImageField
+from django.contrib.auth import authenticate
 
 from users.models import Subscription, User
 from ingredients.models import Ingredient
@@ -104,3 +105,28 @@ class IngredientSerializer(serializers.ModelSerializer):
             'name',
             'measurement_unit',
         )
+
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    token = serializers.CharField(read_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        password = attrs.get('password')
+        if email and password:
+            user = authenticate(
+                request=self.context.get('request'),
+                username=email,
+                password=password,
+            )
+            if not user:
+                msg = 'Неверные учетные данные.'
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = 'Обязательные поля: "Email" и "Пароль"'
+            raise serializers.ValidationError(msg, code='authorization')
+        attrs['user'] = user
+        return attrs
