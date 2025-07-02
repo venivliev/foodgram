@@ -8,6 +8,8 @@ from rest_framework import (
 from users.models import Subscription, User
 from api.serializers import (
     UserCreateSerializer,
+    BaseUserSerializer,
+    UserSerializer
 )
 from api.paginations import UserPagination
 
@@ -15,8 +17,14 @@ from api.paginations import UserPagination
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     pagination_class = UserPagination
-    serializer_class = UserCreateSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserCreateSerializer
+        elif self.action in ['avatar', 'retrieve']:
+            return BaseUserSerializer
+        return UserSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

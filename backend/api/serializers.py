@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from drf_extra_fields.fields import Base64ImageField
+
 from users.models import Subscription, User
 
 
@@ -35,3 +37,55 @@ class UserCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'avatar': {'required': False},
         }
+
+class BaseUserSerializer(serializers.ModelSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+    avatar = Base64ImageField()
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user.users_subscriptions.filter(
+                subscribed_to=obj
+            ).exists()
+        return False
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar',
+        )
+
+
+class UserSerializer(BaseUserSerializer):
+
+    is_subscribed = serializers.SerializerMethodField()
+    avatar = Base64ImageField()
+
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar',
+        )
+        read_only_fields = ('email',)
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user.users_subscriptions.filter(
+                subscribed_to=obj
+            ).exists()
+        return False
