@@ -4,6 +4,9 @@ from drf_extra_fields.fields import Base64ImageField
 
 from users.models import Subscription, User
 
+class AvatarSerializer(serializers.Serializer):
+    avatar = Base64ImageField(required=True)
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
     """
@@ -38,7 +41,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'avatar': {'required': False},
         }
 
-class BaseUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
 
@@ -63,11 +66,10 @@ class BaseUserSerializer(serializers.ModelSerializer):
         )
 
 
-class UserSerializer(BaseUserSerializer):
+class ReadUserSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField()
-
 
     class Meta:
         model = User
@@ -80,7 +82,9 @@ class UserSerializer(BaseUserSerializer):
             'is_subscribed',
             'avatar',
         )
-        read_only_fields = ('email',)
+        read_only_fields = (
+            'email',
+        )
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
