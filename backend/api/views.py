@@ -9,8 +9,9 @@ authtoken
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from django.core.files.storage import default_storage
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from users.models import Subscription, User
+from recipes.models import Recipe
 from api.serializers import (
     UserCreateSerializer,
     CustomUserSerializer,
@@ -20,9 +21,10 @@ from api.serializers import (
     AuthTokenSerializer,
     ChangePasswordSerializer
 )
+from api.recipes_serializers import RecipeSerializer
 from rest_framework.views import APIView
 from ingredients.models import Ingredient
-from foodgram_config.paginations import UserPagination
+from foodgram_config.paginations import UserPagination, RecipePagination
 from foodgram_config.filters import IngredientFilter
 from foodgram_config.permissions import IsAuthorOrReadOnly
 
@@ -164,3 +166,13 @@ class ObtainAuthToken(APIView):
             user=user
         )
         return response.Response({'auth_token': token.key})
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAuthorOrReadOnly,
+    ]
+    pagination_class = RecipePagination
