@@ -1,9 +1,9 @@
 from rest_framework import serializers
-
+from drf_extra_fields.fields import Base64ImageField
 from django.core.validators import MinValueValidator
+
 from recipes.models import RecipeIngredient, Recipe
 from ingredients.models import Ingredient
-from drf_extra_fields.fields import Base64ImageField
 from api.serializers import CustomUserSerializer
 
 

@@ -3,6 +3,7 @@ from django.db import models
 from users.models import User
 from recipes.models import Recipe
 
+
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
@@ -20,7 +21,6 @@ class ShoppingCart(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-
 
     def __str__(self):
         return f'{self.user} {self.recipe}'

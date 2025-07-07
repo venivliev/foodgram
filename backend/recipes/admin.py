@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Recipe, RecipeIngredient, Favorite
+
+from recipes.models import Recipe, RecipeIngredient, Favorite
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -33,7 +34,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def display_image(self, obj):
         if obj.image:
-            return format_html('<img src="{}" width="50" height="50" />', obj.image.url)
+            return format_html('<img src="{}" width="50" height="50" />',
+                               obj.image.url)
         return "-"
 
     display_image.short_description = 'Изображение'

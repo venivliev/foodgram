@@ -1,10 +1,8 @@
 from rest_framework import serializers
-
 from drf_extra_fields.fields import Base64ImageField
 from django.contrib.auth import authenticate
 
 from api.shorts_serializers import RecipeShortSerializer
-
 from users.models import Subscription, User
 from ingredients.models import Ingredient
 
