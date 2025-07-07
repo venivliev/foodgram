@@ -69,14 +69,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             "is_in_shopping_cart",
         )
 
-    def validate_ingredients(self, ingredients):
-        if not ingredients:
-            raise serializers.ValidationError("Ing is Null")
-        ingredient_ids = [ingredient["ingredient"]["id"] for ingredient in ingredients]
-        if len(ingredient_ids) != len(set(ingredient_ids)):
-            raise serializers.ValidationError("Ing is duplicated")
-        return ingredients
-
     def validate(self, data):
         request = self.context['request']
         if request.method == 'POST':
@@ -96,10 +88,25 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
             if 'ingredients' not in self.initial_data or not self.initial_data.get('ingredients'):
                 raise serializers.ValidationError(
-                    {"ingredients": ["image is required"]}
+                    {"ingredients": [
+                        "image is required"]
+                    }
                 )
 
         return data
+
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError(
+                "Ing is Null"
+            )
+        ingredient_ids = [
+            ingredient["ingredient"]["id"] for ingredient in ingredients
+        ]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError("Ing is duplicated")
+        return ingredients
+
 
     def get_is_favorited(self, obj):
         request = self.context.get("request")

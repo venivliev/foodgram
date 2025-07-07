@@ -168,12 +168,13 @@ class ChangePasswordSerializer(serializers.Serializer):
 class SubscribeSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.ReadOnlyField(
-        source='recipes.count'
-    )
+    recipes_count = serializers.SerializerMethodField()
     avatar = Base64ImageField(
         required=False
     )
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
