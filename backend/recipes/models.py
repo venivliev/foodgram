@@ -38,6 +38,14 @@ class Recipe(models.Model):
         auto_now_add=True,
         verbose_name='дата публикации'
     )
+    short_code = models.CharField(
+        max_length=6,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Код короткой ссылки",
+        help_text="Уникальный код для короткой ссылки на рецепт",
+    )
 
     class Meta:
         verbose_name = 'рецепт'
@@ -52,7 +60,7 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='ingredient_amounts',
+        related_name='recipe_ingredients',
         verbose_name='рецепт',
     )
     ingredient = models.ForeignKey(

@@ -37,11 +37,17 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    author = CustomUserSerializer(read_only=True)
-    ingredients = RecipeIngredientSerializer(
-        many=True, source="recipe_ingredients"
+    author = CustomUserSerializer(
+        read_only=True
     )
-    image = Base64ImageField(required=True, allow_null=False)
+    ingredients = RecipeIngredientSerializer(
+        many=True,
+        source="recipe_ingredients",
+    )
+    image = Base64ImageField(
+        required=True,
+        allow_null=False
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     cooking_time = serializers.IntegerField(
@@ -52,13 +58,95 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = (            "id",
+        fields = (
+            "id",
             "author",
-            "ingredients",
-            "name",
+            "ingredients", "name",
             "image",
             "text",
             "cooking_time",
             "is_favorited",
             "is_in_shopping_cart",
-                              )
+        )
+
+    def validate_ingredients(self, ingredients):
+        if not ingredients:
+            raise serializers.ValidationError("Ing is Null")
+        ingredient_ids = [ingredient["ingredient"]["id"] for ingredient in ingredients]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError("Ing is duplicated")
+        return ingredients
+
+    def validate(self, data):
+        request = self.context['request']
+        if request.method == 'POST':
+            if 'image' not in self.initial_data or not self.initial_data.get('image'):
+                raise serializers.ValidationError(
+                    {
+                        "image":
+                            [
+                                "Img is Null"
+                            ]
+                    }
+                )
+        elif request.method in ['PATCH', 'PUT']:
+            if 'image' in self.initial_data and not self.initial_data.get('image'):
+                raise serializers.ValidationError(
+                    {"image": ["image is null"]}
+                )
+            if 'ingredients' not in self.initial_data or not self.initial_data.get('ingredients'):
+                raise serializers.ValidationError(
+                    {"ingredients": ["image is required"]}
+                )
+
+        return data
+
+    def get_is_favorited(self, obj):
+        request = self.context.get("request")
+        return (
+                request and
+                request.user.is_authenticated and
+                obj.favorite.filter(user=request.user).exists()
+        )
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return obj.shopping_cart.filter(
+                user=request.user
+            ).exists()
+        return False
+
+    def create(self, validated_data):
+        ingredients_data = validated_data.pop("recipe_ingredients", [])
+        recipe = super().create(validated_data)
+        RecipeIngredient.objects.bulk_create(
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient_id=ingredient_data["ingredient"]["id"].id,
+                amount=ingredient_data["amount"],
+            )
+            for ingredient_data in ingredients_data
+        )
+        return recipe
+
+    def update(self, instance, validated_data):
+        image = validated_data.get("image")
+        if image == "":
+            raise serializers.ValidationError(
+                {"image": "image is null"}
+            )
+        if "image" not in validated_data:
+            validated_data["image"] = instance.image
+        ingredients_data = validated_data.pop("recipe_ingredients", [])
+        instance = super().update(instance, validated_data)
+        instance.recipe_ingredients.all().delete()
+        RecipeIngredient.objects.bulk_create(
+            RecipeIngredient(
+                recipe=instance,
+                ingredient_id=ingredient_data["ingredient"]["id"].id,
+                amount=ingredient_data["amount"],
+            )
+            for ingredient_data in ingredients_data
+        )
+        return instance
